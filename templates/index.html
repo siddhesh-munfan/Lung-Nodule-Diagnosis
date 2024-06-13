@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lung Cancer Classifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: 'Poppins', sans-serif;;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #007bff;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .image-label {
+            margin-top: 10px;
+            font-weight: bold;
+            align-items: center;
+        }
+        .lead {
+            color: #a72828;
+            font-size: 24px;
+        }
+
+        
+            /* Clearfix (clear floats) */
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* Loading */
+        .loading {
+            /* display: none; */
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #cc7919;
+                    /* Additional styling */
+            animation: blink 1s infinite; /* Add a blinking effect */
+            font-weight: bold;
+        }
+
+        @keyframes blink {
+        0%, 50%, 100% {
+            opacity: 1;
+        }
+        25%, 75% {
+            opacity: 0;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 >Lung Cancer Classifier</h1>
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded p-5 bg-white d-flex flex-row justify-content-center">
+            <form action="/" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                    <label for="formFile" class="form-label">Select an image</label>
+                <div class="w-100 d-flex justify-content-center align-items-center">
+                    <input class="form-control w-75" type="file" id="imagefile" name="imagefile" accept="image" required>
+                    <button type="submit" class="btn btn-success mx-3">Predict</button>
+                </div>
+                <div id="loadingMessage" style="display: none; margin-top: 10px;">
+                    <p class="loading" style="color: #e64201;">Please wait... Loading</p>
+                    <!-- <video width="320" height="240" controls autoplay>
+                        <source  type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video> -->
+                    
+                </div>
+                
+            </form>
+        </div>
+        {% if result %}
+                
+            <div class="row" id="iR">
+                <p class="lead text-center mt-2 fw-normal" >Result: {{ result }}</p>
+                <p class="lead text-center mt-2 fw-normal" >Accuracy: {{ accuracy }}</p>
+                <div class="d-flex justify-content-evenly w-100 mt-4">
+                    {% if result== "Malignant"%}                
+                        <div id="iR1" >
+                            <p style="text-align: center;"><b>{{ result }} Image</b></p>
+                            <img src="{{ img_path }}" alt="Uploaded Image" class="img-fluid" width="400" height="200">
+                        </div>   
+                        <div id="iR2" > 
+                            <p style="text-align: center"><b>Located Nodule</b></p>
+                            <img src="{{prediction}}" alt="Prediction" class="img-fluid" width="400" height="200">
+                        </div>
+                    {% else %}
+                        <div id="iR3" >
+                            <img src="{{ img_path }}" alt="Uploaded Image" class="img-fluid" width="400" height="200">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <script>
+                // Hide the loading message
+                document.getElementById("loadingMessage").style.display = "none";
+            </script>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-eMNCOe3l6TFojTErJg1lN7pI0D1qgOiYQq9qPxpWzh5+VTegMF+6MDpOoH86z2hS" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy/EU8bA/iFfTv5vDekTm3Sg27VvtQ/j6" crossorigin="anonymous"></script>
+    <script>
+        function showLoading() {
+            console.log("Loading function called");
+            // Show the loading message
+            document.getElementById("loadingMessage").style.display = "block";
+            // Clear the content of the result images
+            document.getElementById("iR").innerHTML = "";
+            document.getElementById("iR1").innerHTML = "";
+            document.getElementById("iR2").innerHTML = "";
+            document.getElementById("iR3").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
+
